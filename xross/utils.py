@@ -1,16 +1,6 @@
-from json import dumps
 from inspect import signature, currentframe
 
-from django.http.response import HttpResponse
-
 from .exceptions import MissingOperationArgument, OperationUnimplemented, ResponseEmpty
-
-
-def respose_json(success, additional_data=None):  #todo what for?
-    response = {'success': success}
-    if additional_data:
-        response.update(additional_data)
-    return HttpResponse(dumps(response), content_type='application/json')
 
 
 def build_handler_class(operations):
@@ -76,6 +66,18 @@ class XrossHandlerBase(object):
 
         return args, kwargs
 
+    @classmethod
+    def _cast_val(cls, val):
+        if val.lower() == 'null':
+            val = None
+        if val.lower() == 'true':
+            val = True
+        elif val.lower() == 'false':
+            val = False
+        elif val.isdigit():  # NB: this won't handle floats.
+            val = int(val)
+        return val
+
     def dispatch(self):
         if self.request.is_ajax():
             request_data = getattr(self.request, self.http_method)
@@ -104,7 +106,7 @@ class XrossHandlerBase(object):
                     elif idx in (0, 1) and arg == 'request':
                         val = self.request
                     else:
-                        val = request_data.get(arg)
+                        val = self._cast_val(request_data.get(arg))
 
                     if val is not None:
                         args_bound.append(val)
@@ -120,7 +122,7 @@ class XrossHandlerBase(object):
                     for kwarg in kwargs_handler:
                         val = request_data.get(kwarg)
                         if val is not None:
-                            kwargs_bound[kwarg] = val
+                            kwargs_bound[kwarg] = self._cast_val(val)
 
                 response = handler(*args_bound, **kwargs_bound)
 
