@@ -92,7 +92,7 @@ xross = {
 
             $.each(el.data(), function(name, val){
                 var t = typeof val;
-                if (t == 'string' || t == 'number') {  // Only simple types are supported, no object serialization.
+                if (t == 'string' || t == 'number' || t == 'boolean') {  // Only simple types are supported, no object serialization.
                     if (name.slice(0, prefix.length) == prefix) {
                         name = name.slice(prefix.length);
                     }
@@ -172,8 +172,8 @@ xross = {
                 xross.utils.log(function(){ return 'Binding `' + params.event + '` for `' + el_selector + '`.' });
 
                 $(document).on(params.event, el_scope, function(e) {
-                    xross.utils.log(function(){ return 'Triggering `' + params.event + '` for `' + el_selector + '`.' });
                     var data = $.extend({}, { el: $el.attr('id') }, xross.utils.get_element_data($(el_selector)));
+                    xross.utils.log(function(){ return 'Triggering `' + params.event + '` for `' + el_selector + '` with `' + $.param(data) + '`.' });
                     if (params.form) {
                         var form = $('#' + params.form);
                         if (form.length) {
