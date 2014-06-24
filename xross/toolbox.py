@@ -8,6 +8,12 @@ from .utils import build_handler_class
 
 
 def xross_view(*op_functions, **kwargs):
+    """This decorator should be used to decorate those applications views 
+    that require xross functionality.
+
+    :param list op_functions: operations (functions, methods) responsible for handling xross requests.
+    :param kwargs:
+    """
 
     operations = {}
 
@@ -44,22 +50,12 @@ def xross_view(*op_functions, **kwargs):
 
 
 def xross_listener(**xross_attrs):
+    """Instructs xross to handle AJAX calls right from the moment it is called.
+    
+    :param dict xross_attrs: xross handler attributes. Those attributes will be available in operation functions.
+    """
     handler = currentframe().f_back.f_locals['request']._xross_handler
     handler.set_attrs(**xross_attrs)
     response = handler.dispatch()
     if response:
         raise ResponseReady(response)
-
-
-# xross_response = xross_get_response(request, {
-#     'preview_rst': preview_rst
-# }, item=item)
-#
-# if xross_response:
-#     return xross_response
-#
-# def xross_get_response(request, operations, **kwargs):
-#     handler_class = build_handler_class(operations)
-#     handler = handler_class(request, **kwargs)
-#     return handler.dispatch()
-#
