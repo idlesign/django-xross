@@ -1,7 +1,14 @@
 django-xross changelog
 ======================
 
+v0.2.0
+------
++ Added minified version.
++ ajax: added `op` param.
++ ajax: `form` param now accepts an object.
+* ajax: `request_type` param renamed into `method`.
+
+
 v0.1.0
 ------
 + Basic functionality.
-
