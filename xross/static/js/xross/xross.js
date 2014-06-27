@@ -108,7 +108,12 @@ xross = {
         ajax: {
             func: function(el_selector, params) {
                 var el_scope = el_selector,
-                    $el = $(el_selector);
+                    $el = $(el_selector),
+                    operation_id = $el.attr('id');
+
+                if (params.op) {
+                    operation_id = params.op;
+                }
 
                 // Populate params with those from element's data attributes.
                 params = $.extend({}, params, xross.utils.get_element_data($el));
@@ -172,7 +177,7 @@ xross = {
                 xross.utils.log(function(){ return 'Binding `' + params.event + '` for `' + el_selector + '`.' });
 
                 $(document).on(params.event, el_scope, function(e) {
-                    var data = $.extend({}, { el: $el.attr('id') }, xross.utils.get_element_data($(el_selector))),
+                    var data = $.extend({}, { op: operation_id }, xross.utils.get_element_data($(el_selector))),
                         form = null;
                     xross.utils.log(function(){ return 'Triggering `' + params.event + '` for `' + el_selector + '` with `' + $.param(data) + '`.' });
                     if (params.form) {
@@ -202,7 +207,8 @@ xross = {
                 event: 'auto',
                 target: 'this',
                 success: 'fill',
-                form: null
+                form: null,
+                op: null
             }
         }
     }

@@ -80,6 +80,13 @@ AJAX handler is the default one. It simplifies sending AJAX requests to server a
 **Supported parameters**:
 
 
+* **op**: operation identifier for server side. On server it is usually a name of a function to be executed.
+
+  If not set ID attribute value of a current DOM element is used as operation ID.
+
+  Default: **null**. Examples: null, myoperation.
+
+
 * **method**: allows to set HTTP method for AJAX requests.
 
   Default: **GET**. Examples: POST, GET.
@@ -120,5 +127,5 @@ AJAX handler is the default one. It simplifies sending AJAX requests to server a
 
   Accepts a string (forms are addressed by their IDs) or a form object
 
-  Default: null. Examples: null, myform.
+  Default: **null**. Examples: null, myform.
 
