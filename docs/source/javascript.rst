@@ -27,6 +27,17 @@ Setting ``debug`` attribute to True allows **xross** to put debug information in
 
 
 
+xross.data_items_prefix
+-----------------------
+
+Allows to adjust a prefix for **data-** attributes of elements.
+
+Attributes with this prefix will be considered by **xross**.
+
+Default: **x**. E.g: use `myx` to pass all `data-myx` prefixed attributes to xross (data-myxsome, data-myxother, etc.).
+
+
+
 xross.automate()
 ----------------
 
