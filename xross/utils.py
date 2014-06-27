@@ -81,12 +81,12 @@ class XrossHandlerBase(object):
     def dispatch(self):
         if self.request.is_ajax():
             request_data = getattr(self.request, self.http_method)
-            element_id = request_data.get('el', None)
+            operation_id = request_data.get('op', None)
 
-            if element_id is not None:
+            if operation_id is not None:
                 self.request_data = request_data
 
-                op_name = self.get_op_method_name(element_id)
+                op_name = self.get_op_method_name(operation_id)
                 handler = self.get_op_callable(op_name)
 
                 args_handler, kwargs_handler = self._get_handler_args(handler)
