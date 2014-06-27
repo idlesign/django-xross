@@ -54,7 +54,7 @@ Now to your `mytemplates/index.html`:
         <script src="http://yandex.st/jquery/2.1.1/jquery.min.js"></script>
 
         <!-- Now xross itself. -->
-        <script src="{{ STATIC_URL }}js/xross/xross.js"></script>
+        <script src="{{ STATIC_URL }}js/xross/xross.min.js"></script>
         <script type="text/javascript">
             xross.automate();  // Instruct xross to watch for page elements with `xross` class.
         </script>
