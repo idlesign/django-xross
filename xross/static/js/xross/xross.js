@@ -181,7 +181,7 @@ xross = {
                         }
                     }
                     $.ajax({
-                        type: params.request_type,
+                        type: params.method,
                         // Consider .
                         data: data,
                         success: params.success,
@@ -193,7 +193,7 @@ xross = {
 
             },
             params: {
-                request_type: 'GET',
+                method: 'GET',
                 event: 'auto',
                 target: 'this',
                 success: 'fill',
