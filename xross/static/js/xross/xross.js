@@ -172,10 +172,15 @@ xross = {
                 xross.utils.log(function(){ return 'Binding `' + params.event + '` for `' + el_selector + '`.' });
 
                 $(document).on(params.event, el_scope, function(e) {
-                    var data = $.extend({}, { el: $el.attr('id') }, xross.utils.get_element_data($(el_selector)));
+                    var data = $.extend({}, { el: $el.attr('id') }, xross.utils.get_element_data($(el_selector))),
+                        form = null;
                     xross.utils.log(function(){ return 'Triggering `' + params.event + '` for `' + el_selector + '` with `' + $.param(data) + '`.' });
                     if (params.form) {
-                        var form = $('#' + params.form);
+                        if (typeof params.form==='string') {
+                            form = $('#' + params.form);
+                        } else {
+                            form = params.form;
+                        }
                         if (form.length) {
                             data = $.param(data) + '&' + form.serialize();  // Join form data with basic data.
                         }
