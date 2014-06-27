@@ -6,7 +6,7 @@ function get_new_text(name) {
 $.mockjax({
     url: '*',
     response: function(s) {
-        this.responseText = get_new_text(s.data.el);
+        this.responseText = get_new_text(s.data.op);
     }
 });
 
