@@ -56,3 +56,69 @@ Under the cover `automate()` uses this method to describe various page elements 
     // Attach the default (`ajax`) handler to 'my_element'.
     xross.describe('#my_element');
 
+
+
+xross handlers
+--------------
+
+**xross** relies on so-called *handlers* to perform certain actions.
+
+Each handler can accept certain parameters to adjust its behaviour.
+
+The default handler is ``ajax``.
+
+
+
+AJAX handler
+------------
+
+Alias: **ajax**.
+
+AJAX handler is the default one. It simplifies sending AJAX requests to server and handling responses.
+
+
+**Supported parameters**:
+
+
+* **method**: allows to set HTTP method for AJAX requests.
+
+  Default: **GET**. Examples: POST, GET.
+
+
+* **target**: allows to define a target DOM element over which some actions would be performed on success.
+
+  Accepts a string (elements are addressed by their IDs) or an element object
+
+  Default: **this**. Examples: this, mydiv.
+
+
+* **event**: allows to define a DOM event which triggers AJAX functionality.
+
+  If set to **auto**, xross will try to detect a proper event basing on element type.
+
+  Default: **auto**. Examples: auto, ready, click.
+
+
+* **success**: allows to set an action to performed on success.
+
+  Accepts a function or a string (action alias).
+
+  Default: **fill**. Examples: fill, replace.
+
+  *Action aliases*:
+
+    * **fill** - replaces target element content with data from server;
+
+    * **replace** - replaces the whole target element with data from server;
+
+    * **append** - appends data from server to target element contents;
+
+    * **prepend** - prepends data from server to target element contents.
+
+
+* **form**: allows sending form data to server vie AJAX.
+
+  Accepts a string (forms are addressed by their IDs) or a form object
+
+  Default: null. Examples: null, myform.
+
