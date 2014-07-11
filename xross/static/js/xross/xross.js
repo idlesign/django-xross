@@ -12,7 +12,7 @@ xross = {
         }
         $(function(){
             $.each($('.' + xross_class), function(idx, obj) {
-                xross.describe( '#' + $(obj).attr('id'), handler_name);
+                xross.describe('#' + $(obj).attr('id'), handler_name);
             });
         });
     },
@@ -86,6 +86,21 @@ xross = {
             }
         },
 
+        get_function: function(name, context) {
+            var path_chunks = name.split('.'),
+                func = path_chunks.pop();
+
+            for (var i = 0; i < path_chunks.length; i++) {
+                context = context[path_chunks[i]];
+                if (context === undefined) {
+                    xross.utils.log(function(){ return 'Unable to find `' + name + '` function.' });
+                    return undefined;
+                }
+            }
+
+            return context[func];
+        },
+
         get_element_data: function(el) {
             var data_filtered = {},
                 prefix = xross.data_items_prefix;
@@ -156,23 +171,28 @@ xross = {
                     }
                 }
 
-                if (typeof params.success==='string') {
-                    var func = {
-                            fill: function(target, data) { target.html(data); },
-                            replace: function(target, data) { target.replaceWith(data); },
-                            append: function(target, data) { target.append(data); },
-                            prepend: function(target, data) { target.prepend(data); }
-                        }[params.success];
-
-                    params.success = function(target) {
-                        return function(data, status, xhr) {
-                            xross.utils.log(function(){ return 'Running generic ajax success function for `' + el_selector + '` element.' });
-                            func($(xross.utils.evaluate(target, $el)), data);
-                        }
-                    };
+                if (typeof params.after==='string') {
+                    params.after = xross.utils.get_function(params.after, window);
                 }
 
-                params.success = xross.utils.evaluate(params.success, params.target);
+                if (typeof params.success==='string') {
+                    var func_name = params.success,
+                        func = xross.utils.get_function(func_name, window);
+
+                    if (func === undefined) {
+                        func = xross.utils.get_function(func_name, {
+                                fill: function(target, data) { target.html(data); },
+                                replace: function(target, data) { target.replaceWith(data); },
+                                append: function(target, data) { target.append(data); },
+                                prepend: function(target, data) { target.prepend(data); }
+                            })
+                    }
+
+                    params.success = function(data, status, xhr) {
+                        xross.utils.log(function(){ return 'Running `' + func_name + '` function for `' + el_selector + '` element.' });
+                        func($(xross.utils.evaluate(params.target, $el)), data);
+                    };
+                }
 
                 xross.utils.log(function(){ return 'Binding `' + params.event + '` for `' + el_selector + '`.' });
 
@@ -192,9 +212,13 @@ xross = {
                     }
                     $.ajax({
                         type: params.method,
-                        // Consider .
                         data: data,
-                        success: params.success,
+                        success: function(data, status, xhr) {
+                            params.success(data, status, xhr);
+                            if (params.after) {
+                                params.after(data, status, xhr);
+                            }
+                        },
                         cache: false,
                         dataType: 'html'
                     });
@@ -207,6 +231,7 @@ xross = {
                 event: 'auto',
                 target: 'this',
                 success: 'fill',
+                after: null,
                 form: null,
                 op: null
             }

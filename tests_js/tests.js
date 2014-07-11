@@ -95,6 +95,13 @@ get_ajax_test('swap target', '#box_2', {
     target: function(el) { return  $('#box_2') }
 });
 
+get_ajax_test('swap after', '#box_2', {
+        after: function(el) { $('#box_2').html('box_2 after') }
+    }, function() {
+        equal($('#box_2').html(), 'box_2 after');
+    }
+);
+
 get_ajax_test('swap success', '#box_3', {
     success: function(){ $('#box_3').html(get_new_text('box_3')) }
 });

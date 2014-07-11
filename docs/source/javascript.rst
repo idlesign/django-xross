@@ -119,9 +119,9 @@ AJAX handler is the default one. It simplifies sending AJAX requests to server a
 
 * **success**: allows to set an action to performed on success.
 
-  Accepts a function or a string (action alias).
+  Accepts a function or a string (a function path, or action alias).
 
-  Default: **fill**. Examples: fill, replace.
+  Default: **fill**. Examples: fill, replace, my_obj.my_method.
 
   *Action aliases*:
 
@@ -132,6 +132,13 @@ AJAX handler is the default one. It simplifies sending AJAX requests to server a
     * **append** - appends data from server to target element contents;
 
     * **prepend** - prepends data from server to target element contents.
+
+
+* **after**: allows to define a function triggered after both operation success and failure.
+
+  Accepts a function or a string (a function path).
+
+  Default: **null**. Examples: my_func, my_obj.my_method.
 
 
 * **form**: allows sending form data to server vie AJAX.
