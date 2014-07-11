@@ -76,16 +76,7 @@ QUnit.test('multiple elements', function() {
     equal($('#box_8').html(),  get_new_text('box_8'));
 });
 
-// todo
-QUnit.test('class selector', function() {
-    xross.register_handler('classed', function(el, params) {
-        $(el).html($(el).data('id'));
-    });
-    xross.describe('.box', 'classed');
-
-    ok(1);
-});
-
+/**********************************************************************************/
 
 module('ajax tests');
 

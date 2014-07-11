@@ -177,20 +177,38 @@ xross = {
 
                 if (typeof params.success==='string') {
                     var func_name = params.success,
-                        func = xross.utils.get_function(func_name, window);
+                        func = xross.utils.get_function(func_name, window);  // todo set this last
 
                     if (func === undefined) {
                         func = xross.utils.get_function(func_name, {
-                                fill: function(target, data) { target.html(data); },
-                                replace: function(target, data) { target.replaceWith(data); },
-                                append: function(target, data) { target.append(data); },
-                                prepend: function(target, data) { target.prepend(data); }
-                            })
+                            fill: function(target, data) { target.html(data); },
+                            replace: function(target, data) { target.replaceWith(data); },
+                            append: function(target, data) { target.append(data); },
+                            prepend: function(target, data) { target.prepend(data); }
+                        })
                     }
 
                     params.success = function(data, status, xhr) {
-                        xross.utils.log(function(){ return 'Running `' + func_name + '` function for `' + el_selector + '` element.' });
+                        xross.utils.log(function(){ return 'Running `' + func_name + '` success function for `' + el_selector + '` element.' });
                         func($(xross.utils.evaluate(params.target, $el)), data);
+                    };
+                }
+
+                if (typeof params.error==='string') {
+                    var err_func_name = params.error,
+                        err_func = xross.utils.get_function(err_func_name, window);  // todo set this last
+
+                    if (err_func === undefined) {
+                        err_func = xross.utils.get_function(err_func_name, {
+                            log: function(xhr, status, error) {
+                                xross.utils.log(function(){ return 'Request failed `' + error + '`: `' + xhr.responseText + '`.' });
+                            }
+                        })
+                    }
+
+                    params.error = function(xhr, status, error) {
+                        xross.utils.log(function(){ return 'Running `' + err_func_name + '` error function for `' + el_selector + '` element.' });
+                        err_func(xhr, status, error);
                     };
                 }
 
@@ -216,7 +234,13 @@ xross = {
                         success: function(data, status, xhr) {
                             params.success(data, status, xhr);
                             if (params.after) {
-                                params.after(data, status, xhr);
+                                params.after(xhr, status);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            params.error(xhr, status, error);
+                            if (params.after) {
+                                params.after(xhr, status);
                             }
                         },
                         cache: false,
@@ -231,6 +255,7 @@ xross = {
                 event: 'auto',
                 target: 'this',
                 success: 'fill',
+                error: 'log',
                 after: null,
                 form: null,
                 op: null

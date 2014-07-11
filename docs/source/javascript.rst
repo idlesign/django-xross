@@ -121,6 +121,8 @@ AJAX handler is the default one. It simplifies sending AJAX requests to server a
 
   Accepts a function or a string (a function path, or action alias).
 
+  Function should accept the same arguments as jQuery.ajax().success().
+
   Default: **fill**. Examples: fill, replace, my_obj.my_method.
 
   *Action aliases*:
@@ -134,9 +136,24 @@ AJAX handler is the default one. It simplifies sending AJAX requests to server a
     * **prepend** - prepends data from server to target element contents.
 
 
+* **error**: allows to set an action to performed on request error.
+
+  Accepts a function or a string (a function path, or action alias).
+
+  Function should accept the same arguments as jQuery.ajax().error().
+
+  Default: **log**. Examples: log, my_obj.my_method.
+
+  *Action aliases*:
+
+    * **log** - dumps error description into browser console.
+
+
 * **after**: allows to define a function triggered after both operation success and failure.
 
   Accepts a function or a string (a function path).
+
+  Function should accept the same arguments as jQuery.ajax().complete().
 
   Default: **null**. Examples: my_func, my_obj.my_method.
 
