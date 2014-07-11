@@ -177,15 +177,15 @@ xross = {
 
                 if (typeof params.success==='string') {
                     var func_name = params.success,
-                        func = xross.utils.get_function(func_name, window);  // todo set this last
-
-                    if (func === undefined) {
                         func = xross.utils.get_function(func_name, {
                             fill: function(target, data) { target.html(data); },
                             replace: function(target, data) { target.replaceWith(data); },
                             append: function(target, data) { target.append(data); },
                             prepend: function(target, data) { target.prepend(data); }
-                        })
+                        });
+
+                    if (func===undefined) {
+                        func = xross.utils.get_function(func_name, window);
                     }
 
                     params.success = function(data, status, xhr) {
@@ -196,14 +196,14 @@ xross = {
 
                 if (typeof params.error==='string') {
                     var err_func_name = params.error,
-                        err_func = xross.utils.get_function(err_func_name, window);  // todo set this last
-
-                    if (err_func === undefined) {
                         err_func = xross.utils.get_function(err_func_name, {
                             log: function(xhr, status, error) {
                                 xross.utils.log(function(){ return 'Request failed `' + error + '`: `' + xhr.responseText + '`.' });
                             }
-                        })
+                        });
+
+                    if (err_func===undefined) {
+                        err_func = xross.utils.get_function(err_func_name, window);
                     }
 
                     params.error = function(xhr, status, error) {
