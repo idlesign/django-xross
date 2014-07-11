@@ -86,10 +86,10 @@ get_ajax_test('swap target', '#box_2', {
     target: function(el) { return  $('#box_2') }
 });
 
-get_ajax_test('swap after', '#box_2', {
-        after: function(el) { $('#box_2').html('box_2 after') }
+get_ajax_test('swap complete', '#box_2', {
+        complete: function(el) { $('#box_2').html('box_2 complete') }
     }, function() {
-        equal($('#box_2').html(), 'box_2 after');
+        equal($('#box_2').html(), 'box_2 complete');
     }
 );
 

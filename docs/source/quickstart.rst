@@ -101,6 +101,10 @@ Now to your `mytemplates/index.html`. Here we work with **xross** in quite a dec
     </html>
 
 
+.. note::
+
+    Note that every **xross**-related DOM element has an ID attribute.
+
 
 And two very simple templates:
 

@@ -121,7 +121,7 @@ AJAX handler is the default one. It simplifies sending AJAX requests to server a
 
   Accepts a function or a string (a function path, or action alias).
 
-  Function should accept the same arguments as jQuery.ajax().success().
+  Function should accept the same arguments as jQuery.ajax().success() plus a target DOM element.
 
   Default: **fill**. Examples: fill, replace, my_obj.my_method.
 
@@ -149,7 +149,7 @@ AJAX handler is the default one. It simplifies sending AJAX requests to server a
     * **log** - dumps error description into browser console.
 
 
-* **after**: allows to define a function triggered after both operation success and failure.
+* **complete**: allows to define a function triggered after both operation success and failure.
 
   Accepts a function or a string (a function path).
 

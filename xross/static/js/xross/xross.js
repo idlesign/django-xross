@@ -171,17 +171,17 @@ xross = {
                     }
                 }
 
-                if (typeof params.after==='string') {
-                    params.after = xross.utils.get_function(params.after, window);
+                if (typeof params.complete==='string') {
+                    params.complete = xross.utils.get_function(params.complete, window);
                 }
 
                 if (typeof params.success==='string') {
                     var func_name = params.success,
                         func = xross.utils.get_function(func_name, {
-                            fill: function(target, data) { target.html(data); },
-                            replace: function(target, data) { target.replaceWith(data); },
-                            append: function(target, data) { target.append(data); },
-                            prepend: function(target, data) { target.prepend(data); }
+                            fill: function(data, status, xhr, target) { target.html(data); },
+                            replace: function(data, status, xhr, target) { target.replaceWith(data); },
+                            append: function(data, status, xhr, target) { target.append(data); },
+                            prepend: function(data, status, xhr, target) { target.prepend(data); }
                         });
 
                     if (func===undefined) {
@@ -190,7 +190,7 @@ xross = {
 
                     params.success = function(data, status, xhr) {
                         xross.utils.log(function(){ return 'Running `' + func_name + '` success function for `' + el_selector + '` element.' });
-                        func($(xross.utils.evaluate(params.target, $el)), data);
+                        func(data, status, xhr, $(xross.utils.evaluate(params.target, $el)));
                     };
                 }
 
@@ -231,18 +231,9 @@ xross = {
                     $.ajax({
                         type: params.method,
                         data: data,
-                        success: function(data, status, xhr) {
-                            params.success(data, status, xhr);
-                            if (params.after) {
-                                params.after(xhr, status);
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            params.error(xhr, status, error);
-                            if (params.after) {
-                                params.after(xhr, status);
-                            }
-                        },
+                        success: params.success,  // data, status, xhr
+                        error: params.error,  // xhr, status, error
+                        complete: params.complete,  // xhr, status
                         cache: false,
                         dataType: 'html'
                     });
@@ -256,7 +247,7 @@ xross = {
                 target: 'this',
                 success: 'fill',
                 error: 'log',
-                after: null,
+                complete: null,
                 form: null,
                 op: null
             }
