@@ -1,4 +1,4 @@
-VERSION = (0, 2, 0)
+VERSION = (0, 3, 0)
 
 # TODO python tests
 # TODO more js tests
