@@ -42,7 +42,9 @@ class XrossHandlerBase(object):
             handler = self._op_bindings.get(name)
 
         if handler is None:
-            raise OperationUnimplemented('Requested `%s` operation is not implemented xross handler for `%s`.' % (name, self.view_func))
+            raise OperationUnimplemented(
+                'Requested `%s` operation is not implemented. Missing xross handler for `%s`.' % (name, self.view_func)
+            )
 
         return handler
 
@@ -112,7 +114,11 @@ class XrossHandlerBase(object):
                         args_bound.append(val)
 
                 if len(args_bound) != len(args_handler):
-                    raise MissingOperationArgument('Missing `%s` argument(s) for `%s` operation.' % (', '.join(set(args_handler).difference(args_bound)), op_name))
+                    raise MissingOperationArgument(
+                        'Missing `%s` argument(s) for `%s` operation.' % (
+                            ', '.join(set(args_handler).difference(args_bound)), op_name
+                        )
+                    )
 
                 # Binding kwargs.
                 kwargs_bound = {
