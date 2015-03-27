@@ -185,7 +185,7 @@ xross = {
                     var func_name = params.success,
                         func = xross.utils.get_function(func_name, {
                             remove: function(data, status, xhr, target) { target.remove(); },
-                            empty: function(data, status, xhr, target) { target.html(''); },
+                            empty: function(data, status, xhr, target) { target.empty(); },
                             fill: function(data, status, xhr, target) { target.html(data); },
                             replace: function(data, status, xhr, target) { target.replaceWith(data); },
                             append: function(data, status, xhr, target) { target.append(data); },
