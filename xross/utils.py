@@ -1,3 +1,5 @@
+import json
+
 from collections import OrderedDict
 from inspect import signature, currentframe
 
@@ -69,6 +71,10 @@ def xross_view(*op_functions, **kwargs):
 
             except ResponseReady as r:
                 response = r.response
+                if isinstance(response, str):
+                    response = HttpResponse(response)
+                elif isinstance(response, dict):
+                    response = HttpResponse(json.dumps(response), content_type='application/json')
 
             return response
 

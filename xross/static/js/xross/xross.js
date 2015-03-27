@@ -1,3 +1,9 @@
+/**
+ * django-xross
+ * https://github.com/idlesign/django-xross
+ *
+ * Distributed under BSD License.
+ */
 
 xross = {
 
@@ -234,8 +240,7 @@ xross = {
                         success: params.success,  // data, status, xhr
                         error: params.error,  // xhr, status, error
                         complete: params.complete,  // xhr, status
-                        cache: false,
-                        dataType: 'html'
+                        cache: false
                     });
                     e.preventDefault();
                 });
