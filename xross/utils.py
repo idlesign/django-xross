@@ -1,18 +1,79 @@
+from collections import OrderedDict
 from inspect import signature, currentframe
 
-from .exceptions import MissingOperationArgument, OperationUnimplemented, ResponseEmpty
+from django.http.response import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound
+from django.conf import settings
+
+from .exceptions import (
+    MissingOperationArgument, OperationUnimplemented, ResponseEmpty, HandlerException, ResponseReady)
 
 
-def build_handler_class(operations):
-    handler_dict = {
-        '_op_bindings': {}
+def construct_operations_dict(*op_functions):
+    operations_dict = {
+        '_op_bindings': OrderedDict()
     }
 
-    for op_name, op_func in operations.items():
-        method_name = XrossHandlerBase.get_op_method_name(op_name)
-        handler_dict['_op_bindings'][method_name] = op_func
+    for op_function in op_functions:
+        method_name = XrossHandlerBase.get_op_method_name(op_function.__name__)
+        operations_dict['_op_bindings'][method_name] = op_function
 
-    return type('XrossDynamicHandler', (XrossHandlerBase,), handler_dict)
+    return operations_dict
+
+
+def build_handler_class(operations_dict):
+    return type('XrossDynamicHandler', (XrossHandlerBase,), operations_dict)
+
+
+def xross_listener(**xross_attrs):
+    """Instructs xross to handle AJAX calls right from the moment it is called.
+
+    :param dict xross_attrs: xross handler attributes. Those attributes will be available in operation functions.
+    """
+    handler = currentframe().f_back.f_locals['request']._xross_handler
+    handler.set_attrs(**xross_attrs)
+    response = handler.dispatch()
+    if response:
+        raise ResponseReady(response)
+
+
+def xross_view(*op_functions, **kwargs):
+    """This decorator should be used to decorate those applications views
+    that require xross functionality.
+
+    :param list op_functions: operations (functions, methods) responsible for handling xross requests.
+    :param kwargs:
+    """
+
+    operations_dict = construct_operations_dict(*op_functions)
+
+    def dec_wrapper(func, *dargs, **dkwargs):
+        def func_wrapper(*fargs, **fkwargs):
+
+            request = fargs[0]
+            if isinstance(request, object):
+                request = fargs[1]
+
+            if hasattr(request, '_xross_handler'):
+                request._xross_handler._op_bindings.update(operations_dict['_op_bindings'])
+            else:
+                request._xross_handler = build_handler_class(operations_dict)(request, func)
+
+            try:
+                response = func(*fargs, **fkwargs)
+
+            except HandlerException as e:
+                return HttpResponseBadRequest(e if settings.DEBUG else b'')
+
+            except ResponseEmpty as e:
+                return HttpResponseNotFound(e if settings.DEBUG else b'')
+
+            except ResponseReady as r:
+                response = r.response
+
+            return response
+
+        return func_wrapper
+    return dec_wrapper
 
 
 class XrossHandlerBase(object):
