@@ -127,6 +127,10 @@ AJAX handler is the default one. It simplifies sending AJAX requests to server a
 
   *Action aliases*:
 
+    * **empty** - empties target element;
+
+    * **remove** - removes target element;
+
     * **fill** - replaces target element content with data from server;
 
     * **replace** - replaces the whole target element with data from server;
