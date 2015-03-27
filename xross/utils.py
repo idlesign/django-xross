@@ -33,9 +33,7 @@ def xross_listener(**xross_attrs):
     """
     handler = currentframe().f_back.f_locals['request']._xross_handler
     handler.set_attrs(**xross_attrs)
-    response = handler.dispatch()
-    if response:
-        raise ResponseReady(response)
+    handler.dispatch()
 
 
 def xross_view(*op_functions, **kwargs):
@@ -71,8 +69,13 @@ def xross_view(*op_functions, **kwargs):
 
             except ResponseReady as r:
                 response = r.response
+
+                if response is None:
+                    response = ''
+
                 if isinstance(response, str):
                     response = HttpResponse(response)
+
                 elif isinstance(response, dict):
                     response = HttpResponse(json.dumps(response), content_type='application/json')
 
@@ -199,7 +202,4 @@ class XrossHandlerBase(object):
 
                 response = handler(*args_bound, **kwargs_bound)
 
-                if not response:
-                    raise ResponseEmpty('Operation `%s` returned empty response.' % op_name)
-
-                return response
+                raise ResponseReady(response)
