@@ -17,7 +17,7 @@ and a couple of xross functions in your views.
 Requirements
 ------------
 
-1. Python 2.7+, 3.3+
+1. Python 3.3+
 2. Django 1.4+
 3. jQuery (make it available in templates)
 
