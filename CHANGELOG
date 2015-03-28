@@ -1,6 +1,16 @@
 django-xross changelog
 ======================
 
+
+v0.4.0
+------
++ `xross_view` decorator improved for inherited class-based views.
++ Added two success actions: remove, empty.
++ Implemented simplified response return from operations (str and dict).
+* Fixed requirements in docs (Python 3.3+).
+* Empty responses made allowed.
+
+
 v0.3.0
 ------
 + ajax: implemented `complete` support.
