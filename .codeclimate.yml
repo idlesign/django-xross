@@ -1,0 +1,12 @@
+languages:
+  JavaScript: true
+  Python: true
+
+exclude_paths:
+- "xross/runtests.py"
+- "xross/tests.py"
+- "xross/tests/*"
+- "xross/migrations/*"
+- "xross/south_migrations/*"
+- "tests_js/*"
+- "docs/*"
