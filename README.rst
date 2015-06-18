@@ -2,12 +2,23 @@ django-xross
 ============
 https://github.com/idlesign/django-xross
 
+.. image:: https://img.shields.io/pypi/v/django-xross.svg
+    :target: https://pypi.python.org/pypi/django-xross
 
-.. image:: https://badge.fury.io/py/django-xross.png
-    :target: http://badge.fury.io/py/django-xross
+.. image:: https://img.shields.io/pypi/dm/django-xross.svg
+    :target: https://pypi.python.org/pypi/django-xross
 
-.. image:: https://pypip.in/d/django-xross/badge.png
-        :target: https://crate.io/packages/django-xross
+.. image:: https://img.shields.io/pypi/l/django-xross.svg
+    :target: https://pypi.python.org/pypi/django-xross
+
+.. image:: https://img.shields.io/coveralls/idlesign/django-xross/master.svg
+    :target: https://coveralls.io/r/idlesign/django-xross
+
+.. image:: https://img.shields.io/travis/idlesign/django-xross/master.svg
+    :target: https://travis-ci.org/idlesign/django-xross
+
+.. image:: https://img.shields.io/codeclimate/github/idlesign/django-xross.svg
+   :target: https://codeclimate.com/github/idlesign/django-xross
 
 
 Description
