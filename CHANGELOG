@@ -2,7 +2,7 @@ django-xross changelog
 ======================
 
 
-v0.5.0
+v0.5.1
 ------
 * IMPORTANT: xross expects GET by default.
 + xross_listener() now accepts `http_method` param.
