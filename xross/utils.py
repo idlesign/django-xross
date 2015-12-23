@@ -26,13 +26,17 @@ def build_handler_class(operations_dict):
     return type('XrossDynamicHandler', (XrossHandlerBase,), operations_dict)
 
 
-def xross_listener(**xross_attrs):
+def xross_listener(http_method=None, **xross_attrs):
     """Instructs xross to handle AJAX calls right from the moment it is called.
 
+    :param str http_method: GET or POST. To be uaed as a source of data for xross.
     :param dict xross_attrs: xross handler attributes. Those attributes will be available in operation functions.
+
     """
     handler = currentframe().f_back.f_locals['request']._xross_handler
     handler.set_attrs(**xross_attrs)
+    if http_method is not None:
+        handler.http_method = http_method
     handler.dispatch()
 
 
@@ -86,15 +90,12 @@ def xross_view(*op_functions, **kwargs):
 
 
 class XrossHandlerBase(object):
-    """"""
-
-    http_method = 'REQUEST'
-    request_data = None
-    attrs = {}
 
     _op_bindings = {}
 
     def __init__(self, request, view_func):
+        self.attrs = {}
+        self.http_method = 'GET'
         self.request = request
         self.view_func = view_func
 
@@ -156,8 +157,6 @@ class XrossHandlerBase(object):
             operation_id = request_data.get('op', None)
 
             if operation_id is not None:
-                self.request_data = request_data
-
                 op_name = self.get_op_method_name(operation_id)
                 handler = self.get_op_callable(op_name)
 
