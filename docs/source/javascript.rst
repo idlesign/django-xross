@@ -162,7 +162,7 @@ AJAX handler is the default one. It simplifies sending AJAX requests to server a
   Default: **null**. Examples: my_func, my_obj.my_method.
 
 
-* **form**: allows sending form data to server vie AJAX.
+* **form**: allows sending form data to server via AJAX.
 
   Accepts a string (forms are addressed by their IDs) or a form object
 

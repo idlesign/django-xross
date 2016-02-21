@@ -81,7 +81,7 @@ Now to your `mytemplates/index.html`. Here we work with **xross** in quite a dec
 
             Notice that we use some `data-x` attributes to program desired xross behaviour (`x` prefix stands for `xross`):
 
-                1. data-xvysotsky_only="true" - True will be passed into `vysotsky_only` keyword argument of `get_quotes()`;
+                1. data-xvysotsky_only="true" - True will be passed into `vysotsky_only` keyword argument of `get_quote()`;
 
                 2. data-xtarget="quotes_here" - Defines a target html element (here a div with id `quotes_here`) to place quote into;
 
