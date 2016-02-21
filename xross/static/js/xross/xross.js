@@ -186,6 +186,31 @@ var xross = (function () {
                     }
                 });
                 return dataFiltered;
+            },
+
+            /**
+             * Resolves function from handler parameter. Strings are resolved against
+             * the given context.
+             *
+             * @param param
+             * @param funcContext
+             * @returns {*}
+             */
+            resolveFuncFromParam: function (param, funcContext) {
+
+                if (typeof param === 'string') {
+                    var funcName = param,
+                        func = xross.utils.getFunction(funcName, funcContext);
+
+                    // Try to get function from window (global).
+                    if (func === undefined) {
+                        func = xross.utils.getFunction(funcName, window);
+                    }
+
+                    return func;
+                }
+
+                return param;
             }
 
         },
@@ -199,26 +224,105 @@ var xross = (function () {
              * Default handler, issuing AJAX requests to server and processing responses.
              */
             ajax: {
-                func: function ($el, params) {
-                    var operation = $el.attr('id'),
-                        elSelector = '#' + operation,
-                        eventTarget = elSelector,
-                        responseTargetId;
 
-                    // Populate params with those from element's data attributes.
-                    params = $.extend({}, params, xross.utils.getElementData($el));
+                /**
+                 * Resolves request-response complete handling function.
+                 *
+                 * @param params
+                 * @param $el
+                 * @param elSelector
+                 * @returns {Function}
+                 * @private
+                 */
+                _resolveFuncComplete: function (params, $el, elSelector) {
+                    var func = xross.utils.resolveFuncFromParam(params.complete, window);
 
-                    if (params.op) {
-                        operation = params.op;
-                    }
+                    params.complete = function () {
+                        xross.utils.log(function () {
+                            return 'Running `' + func + '` complete function for `' + elSelector + '` element.';
+                        });
+                        if (func) {
+                            func();
+                        }
+                        $el.trigger($.Event('xrossajaxafter'));
+                    };
 
-                    if (!operation) {
-                        throw 'No operation name supplied for element.';
-                    }
+                },
 
-                    if (params.event === 'auto') {
+                /**
+                 * Resolves error handling function.
+                 *
+                 * @param params
+                 * @param $el
+                 * @param elSelector
+                 * @returns {params.error|*}
+                 * @private
+                 */
+                _resolveFuncError: function (params, $el, elSelector) {
+                    var func = xross.utils.resolveFuncFromParam(params.error, {
+                            log: function (xhr, status, error) {
+                                xross.utils.log(function () {
+                                    return 'Request failed `' + error + '`: `' + xhr.responseText + '`.';
+                                });
+                            }
+                        });
+
+                    params.error = function (xhr, status, error) {
+                        xross.utils.log(function () {
+                            return 'Running `' + func + '` error function for `' + elSelector + '` element.';
+                        });
+                        if (func) {
+                            func(xhr, status, error);
+                        }
+                    };
+
+                },
+
+                /**
+                 * Resolves success handling function.
+                 *
+                 * @param params
+                 * @param $el
+                 * @param elSelector
+                 * @returns {params.success|*}
+                 * @private
+                 */
+                _resolveFuncSuccess: function (params, $el, elSelector) {
+                    var func = xross.utils.resolveFuncFromParam(params.success, {
+                            remove: function (data, status, xhr, target) { target.remove(); },
+                            empty: function (data, status, xhr, target) { target.empty(); },
+                            fill: function (data, status, xhr, target) { target.html(data); },
+                            replace: function (data, status, xhr, target) { target.replaceWith(data); },
+                            append: function (data, status, xhr, target) { target.append(data); },
+                            prepend: function (data, status, xhr, target) { target.prepend(data); }
+                        });
+
+                    params.success = function (data, status, xhr) {
+                        xross.utils.log(function () {
+                            return 'Running `' + func + '` success function for `' + elSelector + '` element.';
+                        });
+                        if (func) {
+                            func(data, status, xhr, $(xross.utils.evaluate(params.target, $el)));
+                        }
+                    };
+                },
+
+                /**
+                 * Resolves event type and return event source (element).
+                 *
+                 * @param params
+                 * @param $el
+                 * @param elSelector
+                 * @returns {*}
+                 * @private
+                 */
+                _resolveEvent: function (params, $el, elSelector) {
+                    var eventSource = elSelector,
+                        event = params.event;
+
+                    if (event === 'auto') {
                         // Trying to automatically deduce event from element type.
-                        params.event = 'ready';
+                        event = 'ready';
 
                         if ($el.length) {
                             var tagName = $el.prop('tagName').toLowerCase(),
@@ -229,12 +333,12 @@ var xross = (function () {
                                 proposedEvent = eventMapping[tagName];
 
                             if (proposedEvent !== undefined) {
-                                params.event = proposedEvent;
+                                event = proposedEvent;
                             }
                         }
                     }
 
-                    if (params.event === 'ready') {
+                    if (event === 'ready') {
                         if (!$el.length) {
                             // no sense in binding ready to a non existing element
                             xross.utils.log(function () {return 'Skipping binding `ready` to an unknown `' +
@@ -242,92 +346,73 @@ var xross = (function () {
                             return;
                         }
                         // ready is used only for document object, so we force a new event target
-                        eventTarget = {};
+                        eventSource = {};
                     }
+
+                    return {event: event, source: eventSource};
+                },
+
+                /**
+                 * Resolves target element.
+                 *
+                 * @param params
+                 * @param $el
+                 * @param elSelector
+                 * @returns {*}
+                 * @private
+                 */
+                _resolveTarget: function (params, $el, elSelector) {
+                    var targetId;
 
                     if (typeof params.target === 'string') {
                         if (params.target === 'this') {
                             // `this` alias into an actual element
-                            responseTargetId = elSelector;
-                            if (responseTargetId === '#undefined') {
+                            targetId = elSelector;
+                            if (targetId === '#undefined') {
                                 xross.utils.log(function () {
-                                    return 'Skipping: `#undefined` element can\'t be a target (operation - `' +
-                                        operation + '`).';
+                                    return 'Skipping: `#undefined` element can\'t be a target.';
                                 });
                                 return;
                             }
-                            params.target = responseTargetId;
+                            params.target = targetId;
                         } else {
                             // Trying to consider this target to be an element id.
-                            responseTargetId = '#' + params.target;
-                            params.target = function () { return $(responseTargetId); };
+                            targetId = '#' + params.target;
+                            params.target = function () { return $(targetId); };
                         }
                     }
 
-                    xross.utils.log(function () { return 'Binding `' + params.event +
+                    return targetId;
+                },
+
+                func: function ($el, defaultParams) {
+                    var operation = $el.attr('id'),
+                        elSelector = '#' + operation,
+
+                        // Populate params with those from element's data attributes.
+                        params = $.extend({}, defaultParams, xross.utils.getElementData($el));
+
+                    if (params.op) {
+                        operation = params.op;
+                    }
+
+                    if (!operation) {
+                        throw 'No operation name supplied for element.';
+                    }
+
+                    var e = xross.handlers.ajax._resolveEvent(params, $el, elSelector),
+                        event = e.event,
+                        eventSource = e.source,
+                        responseTargetId = xross.handlers.ajax._resolveTarget(params, $el, elSelector);
+
+                    xross.handlers.ajax._resolveFuncComplete(params, $el, elSelector);
+                    xross.handlers.ajax._resolveFuncSuccess(params, $el, elSelector);
+                    xross.handlers.ajax._resolveFuncError(params, $el, elSelector);
+
+                    xross.utils.log(function () { return 'Binding `' + event +
                         '` to `' + elSelector + '` targeting `' + responseTargetId + '`.'; });
 
-
-                    if (typeof params.complete === 'string') {
-                        params.complete = xross.utils.getFunction(params.complete, window);
-                    }
-
-                    var funcComplete = function () {
-                        if (params.complete) {
-                            params.complete();
-                        }
-                        $el.trigger($.Event('xrossajaxafter'));
-                    };
-
-                    if (typeof params.success === 'string') {
-                        var funcName = params.success,
-                            func = xross.utils.getFunction(funcName, {
-                                remove: function (data, status, xhr, target) { target.remove(); },
-                                empty: function (data, status, xhr, target) { target.empty(); },
-                                fill: function (data, status, xhr, target) { target.html(data); },
-                                replace: function (data, status, xhr, target) { target.replaceWith(data); },
-                                append: function (data, status, xhr, target) { target.append(data); },
-                                prepend: function (data, status, xhr, target) { target.prepend(data); }
-                            });
-
-                        if (func === undefined) {
-                            func = xross.utils.getFunction(funcName, window);
-                        }
-
-                        params.success = function (data, status, xhr) {
-                            xross.utils.log(function () {
-                                return 'Running `' + funcName + '` success function for `' +
-                                    elSelector + '` element.';
-                            });
-
-                            func(data, status, xhr, $(xross.utils.evaluate(params.target, $el)));
-                        };
-                    }
-
-                    if (typeof params.error === 'string') {
-                        var errFuncName = params.error,
-                            errFunc = xross.utils.getFunction(errFuncName, {
-                                log: function (xhr, status, error) {
-                                    xross.utils.log(function () {
-                                        return 'Request failed `' + error + '`: `' + xhr.responseText + '`.';
-                                    });
-                                }
-                            });
-
-                        if (errFunc === undefined) {
-                            errFunc = xross.utils.getFunction(errFuncName, window);
-                        }
-
-                        params.error = function (xhr, status, error) {
-                            xross.utils.log(function () {
-                                return 'Running `' + errFuncName + '` error function for `' + elSelector + '` element.';
-                            });
-
-                            errFunc(xhr, status, error);
-                        };
-                    }
-
-                    $(document).on(params.event, eventTarget, function (e) {
+                    $(document).on(event, eventSource, function (e) {
 
                         var $srcEl = $(elSelector),
                             data = $.extend({}, { op: operation }, xross.utils.getElementData($srcEl)),
@@ -335,7 +420,7 @@ var xross = (function () {
                             formData = {};
 
                         xross.utils.log(function () {
-                            return 'Triggering `' + params.event + '` for `' + elSelector + '` with `' +
+                            return 'Triggering `' + event + '` for `' + elSelector + '` with `' +
                                 $.param(data) + '`.';
                         });
 
@@ -370,7 +455,7 @@ var xross = (function () {
                             data: data,
                             success: params.success,  // data, status, xhr
                             error: params.error,  // xhr, status, error
-                            complete: funcComplete,  // xhr, status
+                            complete: params.complete,  // xhr, status
                             cache: false
                         });
                         e.preventDefault();
