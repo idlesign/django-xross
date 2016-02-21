@@ -17,8 +17,8 @@ https://github.com/idlesign/django-xross
 .. image:: https://img.shields.io/travis/idlesign/django-xross/master.svg
     :target: https://travis-ci.org/idlesign/django-xross
 
-.. image:: https://img.shields.io/codeclimate/github/idlesign/django-xross.svg
-   :target: https://codeclimate.com/github/idlesign/django-xross
+.. image:: https://landscape.io/github/idlesign/django-xross/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/idlesign/django-xross/master
 
 
 Description
