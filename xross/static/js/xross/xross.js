@@ -87,9 +87,7 @@ var xross = (function () {
                 params = {};
             }
 
-            var $el = $(el),
-                handler = this._handlersRegistry[handlerName];
-
+            var handler = this._handlersRegistry[handlerName];
             if (handler === undefined) {
                 if (handlerName === this._defaultHandler) {
                     xross.bootstrap();
@@ -100,10 +98,11 @@ var xross = (function () {
             }
 
             $(function () {
-                if (!($el instanceof Array)) {
-                    $el = [$el];
+                if (!(el instanceof Array)) {
+                    el = [el];
                 }
-                $.each($el, function (idx, $obj) {
+                $.each(el, function (idx, obj) {
+                    var $obj = $(obj);
                     xross.utils.log(function () { return 'Describing `#' + $obj.attr('id') + '` using `' +
                         handlerName + '` handler.'; });
 
