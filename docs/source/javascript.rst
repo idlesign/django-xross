@@ -88,6 +88,15 @@ Alias: **ajax**.
 AJAX handler is the default one. It simplifies sending AJAX requests to server and handling responses.
 
 
+**Events**:
+
+You can listen to the following events on your xross elements:
+
+* **xrossajaxbefore**: Fired right before AJAX call. Event has ``xrossData`` and ``xrossFormData`` attributes.
+
+* **xrossajaxafter**: Fired after AJAX call is complete (both on success and on failure).
+
+
 **Supported parameters**:
 
 
