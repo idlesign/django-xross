@@ -128,3 +128,22 @@ And two very simple templates:
         <blockquote>{{ quote.text }}</blockquote>
         <div><i>by {{ quote.author }}</i></div>
     </div>
+
+
+.. note::
+
+    To send form data just define `data-xform` attribute (it accept form ID) and optionally `data-xmethod`:
+
+    Example:
+
+    .. code-block:: html
+
+        <form id="myfrom">
+            {% csrf_token %}
+            <input type="text" name="username" required>
+
+            <button type="submit" id="handle_form_data" class="xross"
+                data-xform="myfrom" data-xtarget="target-div" data-xmethod="post">Send</button>
+
+        </form>
+
