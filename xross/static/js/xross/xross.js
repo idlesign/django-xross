@@ -55,7 +55,7 @@ var xross = (function () {
         registerHandler: function (alias, func, defaultParams) {
             if (typeof func === 'object') {
                 defaultParams = func.params;
-                func = func.func;
+                func = func.attach;
             }
 
             if (defaultParams === undefined) {
@@ -385,7 +385,14 @@ var xross = (function () {
                     return targetId;
                 },
 
-                func: function ($el, defaultParams) {
+                /**
+                 * Main handler entry point.
+                 * Attaches xross machinery to the element.
+                 *
+                 * @param $el
+                 * @param defaultParams
+                 */
+                attach: function ($el, defaultParams) {
                     var operation = $el.attr('id'),
                         elSelector = '#' + operation,
 
