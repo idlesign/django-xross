@@ -267,9 +267,17 @@ var xross = (function () {
                     xross.utils.log(function () { return 'Binding `' + params.event +
                         '` to `' + elSelector + '` targeting `' + responseTargetId + '`.'; });
 
+
                     if (typeof params.complete === 'string') {
                         params.complete = xross.utils.getFunction(params.complete, window);
                     }
+
+                    var funcComplete = function () {
+                        if (params.complete) {
+                            params.complete();
+                        }
+                        $el.trigger($.Event('xrossajaxafter'));
+                    };
 
                     if (typeof params.success === 'string') {
                         var funcName = params.success,
@@ -321,33 +329,48 @@ var xross = (function () {
 
                     $(document).on(params.event, eventTarget, function (e) {
 
-                        var data = $.extend({}, { op: operation }, xross.utils.getElementData($(elSelector))),
-                            form = null;
+                        var $srcEl = $(elSelector),
+                            data = $.extend({}, { op: operation }, xross.utils.getElementData($srcEl)),
+                            form = params.form,
+                            formData = {};
 
                         xross.utils.log(function () {
                             return 'Triggering `' + params.event + '` for `' + elSelector + '` with `' +
                                 $.param(data) + '`.';
                         });
 
-                        if (params.form) {
-                            if (typeof params.form === 'string') {
-                                form = $('#' + params.form);
-                            } else {
-                                form = params.form;
+                        if (form) {
+                            if (typeof form === 'string') {
+                                form = $('#' + form);
                             }
                             if (form.length) {
                                 if (form[0].checkValidity && !form[0].checkValidity()) {
                                     return;
                                 }
-                                data = $.param(data) + '&' + form.serialize();  // Join form data with basic data.
+                                formData = form.serializeArray();
                             }
+                        }
+
+                        var eBefore = $.Event('xrossajaxbefore', {
+                            xrossParams: params,
+                            xrossData: data,
+                            xrossFormData: formData
+                        });
+
+                        if (!$srcEl.trigger(eBefore)) {
+                            return;
+                        }
+
+                        data = $.param(data);
+                        if (formData) {
+                            data += '&' + $.param(formData);  // Join form data with basic data.
                         }
                         $.ajax({
                             type: params.method,
                             data: data,
                             success: params.success,  // data, status, xhr
                             error: params.error,  // xhr, status, error
-                            complete: params.complete,  // xhr, status
+                            complete: funcComplete,  // xhr, status
                             cache: false
                         });
                         e.preventDefault();

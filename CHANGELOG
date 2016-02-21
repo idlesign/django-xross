@@ -8,6 +8,7 @@ Unreleased
 * Fixed incompatibility with function-based views.
 * Fixed operation function/method required `xross` argument.
 + ajax: forms now are checked on validity before data is submitted.
++ ajax: added `xrossajaxafter` and `xrossajaxbefore` events for xross elements.
 
 
 v0.5.1
