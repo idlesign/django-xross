@@ -27,8 +27,8 @@ Setting ``debug`` attribute to True allows **xross** to put debug information in
 
 
 
-xross.data_items_prefix
------------------------
+xross.dataItemsPrefix
+---------------------
 
 Allows to adjust a prefix for **data-** attributes of elements.
 

@@ -2,6 +2,11 @@ django-xross changelog
 ======================
 
 
+Unreleased
+----------
+* IMPORTANT: xross.js changed naming conventions from pythonic to js.
+
+
 v0.5.1
 ------
 * IMPORTANT: xross expects GET by default.
@@ -26,7 +31,7 @@ v0.3.0
 ------
 + ajax: implemented `complete` support.
 + ajax: implemented `error` support.
-+ implemented `by-path` function search (xross.utils.get_function)
++ implemented `by-path` function search (xross.utils.getFunction)
 
 
 v0.2.0

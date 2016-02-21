@@ -48,7 +48,7 @@ QUnit.test('unknown handler', function() {
 
 QUnit.test('register handler', function(){
     var el_, params_;
-    xross.register_handler('mine', function(el, params) {
+    xross.registerHandler('mine', function(el, params) {
         el_ = el;
         params_ = params;
     }, {
@@ -67,7 +67,7 @@ QUnit.test('register handler', function(){
 });
 
 QUnit.test('multiple elements', function() {
-    xross.register_handler('multiple', function(el, params) {
+    xross.registerHandler('multiple', function(el, params) {
         $(el).html(get_new_text(el));
     });
     xross.describe(['#box_7', '#box_8'], 'multiple');
