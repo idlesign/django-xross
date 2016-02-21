@@ -452,9 +452,8 @@ var xross = (function () {
                             return;
                         }
 
-                        data = $.param(data);
-                        if (formData) {
-                            data += '&' + $.param(formData);  // Join form data with basic data.
+                        if (!$.isEmptyObject(formData)) {
+                            data = $.param(data) + '&' + $.param(formData);  // Join form data with basic data.
                         }
                         $.ajax({
                             type: params.method,
