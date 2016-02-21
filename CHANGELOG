@@ -5,6 +5,8 @@ django-xross changelog
 Unreleased
 ----------
 * IMPORTANT: xross.js changed naming conventions from pythonic to js.
+* Fixed incompatibility with function-based views.
+* Fixed operation function/method required `xross` argument.
 
 
 v0.5.1

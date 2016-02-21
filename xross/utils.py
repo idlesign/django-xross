@@ -4,6 +4,7 @@ from collections import OrderedDict
 from inspect import signature, currentframe
 
 from django.http.response import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound
+from django.http.request import HttpRequest
 from django.conf import settings
 
 from .exceptions import (
@@ -29,8 +30,12 @@ def build_handler_class(operations_dict):
 def xross_listener(http_method=None, **xross_attrs):
     """Instructs xross to handle AJAX calls right from the moment it is called.
 
-    :param str http_method: GET or POST. To be uaed as a source of data for xross.
-    :param dict xross_attrs: xross handler attributes. Those attributes will be available in operation functions.
+    This should be placed in a view decorated with `@xross_view()`.
+
+    :param str http_method: GET or POST. To be used as a source of data for xross.
+
+    :param dict xross_attrs: xross handler attributes.
+        Those attributes will be available in operation functions in `xross` keyword argument.
 
     """
     handler = currentframe().f_back.f_locals['request']._xross_handler
@@ -40,22 +45,51 @@ def xross_listener(http_method=None, **xross_attrs):
     handler.dispatch()
 
 
-def xross_view(*op_functions, **kwargs):
-    """This decorator should be used to decorate those applications views
-    that require xross functionality.
+def xross_view(*op_functions):
+    """This decorator should be used to decorate application views that require xross functionality.
 
     :param list op_functions: operations (functions, methods) responsible for handling xross requests.
-    :param kwargs:
+
+        Function names considered to be operations names. Using them clients will address those functions
+        (e.g. xross-ready HTML elements may be marked with `data-xop` attributes to define
+        the above mentioned operations, or just define `id` which will serve for the same purpose).
+
+        They can accept `request` as first argument (for methods it'll be second, as the first is `self`),
+        and other params from client side (e.g. defined in `data-x...` html element attributes).
+
+        It can also accept `xross` keyword argument, which will contain any additional `xross attrs`
+        as defined by `xross_listener()`.
+
+        Those functions should return string or dict (handled by client as JSON) or HTTPResponse,
+        e.g. from `render()` result.
+
+        Examples:
+
+            def do_something(request, param1_from_html_el, param2_from_html_el, xross=None):
+                return '%s - %s' % (param1_from_html_el, param2_from_html_el)
+
     """
 
     operations_dict = construct_operations_dict(*op_functions)
 
-    def dec_wrapper(func, *dargs, **dkwargs):
+    def get_request(src):
+        return src if isinstance(src, HttpRequest) else None
+
+    def dec_wrapper(func):
         def func_wrapper(*fargs, **fkwargs):
 
-            request = fargs[0]
-            if isinstance(request, object):
-                request = fargs[1]
+            request_idx = getattr(func, '_req_idx', None)
+            if request_idx is None:
+                request = get_request(fargs[0])
+                request_idx = 0
+                if not request:
+                    # Possibly a class-based view where 0-attr is `self`.
+                    request = get_request(fargs[1])
+                    request_idx = 1
+                func._req_idx = request_idx
+
+            else:
+                request = fargs[request_idx]
 
             if hasattr(request, '_xross_handler'):
                 request._xross_handler._op_bindings.update(operations_dict['_op_bindings'])
@@ -190,10 +224,13 @@ class XrossHandlerBase(object):
                     )
 
                 # Binding kwargs.
-                kwargs_bound = {
-                    'xross': self
-                }
+                kwargs_bound = {}
                 if kwargs_handler:
+
+                    # xross kwarg
+                    if 'xross' in kwargs_handler:
+                        kwargs_bound['xross'] = self
+
                     for kwarg in kwargs_handler:
                         val = request_data.get(kwarg)
                         if val is not None:
