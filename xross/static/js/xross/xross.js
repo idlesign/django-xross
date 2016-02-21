@@ -336,6 +336,9 @@ var xross = (function () {
                                 form = params.form;
                             }
                             if (form.length) {
+                                if (form[0].checkValidity && !form[0].checkValidity()) {
+                                    return;
+                                }
                                 data = $.param(data) + '&' + form.serialize();  // Join form data with basic data.
                             }
                         }
