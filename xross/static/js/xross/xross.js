@@ -78,8 +78,6 @@ var xross = (function () {
          * @param params
          */
         describe: function (el, handlerName, params) {
-            var $el = $(el);
-
             if (typeof handlerName !== 'string') {
                 params = handlerName;
                 handlerName = this._defaultHandler;
@@ -89,7 +87,9 @@ var xross = (function () {
                 params = {};
             }
 
-            var handler = this._handlersRegistry[handlerName];
+            var $el = $(el),
+                handler = this._handlersRegistry[handlerName];
+
             if (handler === undefined) {
                 if (handlerName === this._defaultHandler) {
                     xross.bootstrap();
@@ -444,7 +444,6 @@ var xross = (function () {
                         }
 
                         var eBefore = $.Event('xrossajaxbefore', {
-                            xrossParams: params,
                             xrossData: data,
                             xrossFormData: formData
                         });
