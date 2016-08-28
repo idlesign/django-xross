@@ -1,22 +1,31 @@
 django-xross installation
-================================================
+=========================
 
 
-Python ``setuptools`` package is required to install django-xross.
+Python ``pip`` package is required to install ``django-xross``.
 
 
-Use the following command line to install django-xross from sources directory (containing setup.py):
+From sources
+------------
 
-    easy_install .
+Use the following command line to install ``django-xross`` from sources directory (containing setup.py):
+
+    pip install .
 
 or
 
     python setup.py install
 
 
-Alternatively you can install an up-to-date version of django-xross from PyPI:
+From PyPI
+---------
 
-    easy_install django-xross
+Alternatively you can install ``django-xross`` from PyPI:
+
+    pip install django-xross
 
 
-Note: `easy_install` is bundled with ``setuptools``.
+Use `-U` flag for upgrade:
+
+    pip install -U django-xross
+
