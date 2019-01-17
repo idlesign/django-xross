@@ -17,12 +17,6 @@ and a couple of xross functions in your views.
 Requirements
 ------------
 
-.. image:: https://idlesign.github.io/lbc/py2-lbc.svg
-   :target: https://idlesign.github.io/lbc/
-   :alt: LBC Python 2
-
-----
-
 1. Python 3.5+
 2. Django 1.4+
 3. jQuery (make it available in templates)
