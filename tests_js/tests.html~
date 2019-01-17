@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>xross tests</title>
+        <link rel="stylesheet" href="qunit/qunit-1.14.0.css">
+        <script src="jquery-2.1.0.min.js"></script>
+        <script src="jquery.mockjax.js"></script>
+        <script src="../xross.js"></script>
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture"></div>
+        <script src="qunit/qunit-1.14.0.js"></script>
+        <script src="tests.js"></script>
+    </body>
+</html>

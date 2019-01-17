@@ -2,6 +2,11 @@ django-xross changelog
 ======================
 
 
+Unreleased
+----------
+! Dropped QA for Python 3.3 and 3.4.
+
+
 v0.6.0
 ------
 * IMPORTANT: xross.js changed naming conventions from pythonic to js.

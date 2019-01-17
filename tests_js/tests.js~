@@ -1,0 +1,16 @@
+
+test('simple box', function(){
+    xross.describe('#box_simple');
+});
+
+
+
+// xross.describe(['#bookmark_delete', '#bookmark_add'], {
+//     target: function(el) { return  el.closest('.bookmark_box'); },
+//     success: 'replace',
+//     event: 'click'
+// });
+// 
+
+
+// todo совместимость с селектором класса (н.п. постраничная навигация)
