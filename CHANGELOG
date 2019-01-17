@@ -4,6 +4,7 @@ django-xross changelog
 
 Unreleased
 ----------
+! Dropped QA for Django <1.8.
 ! Dropped QA for Python 3.3 and 3.4.
 
 

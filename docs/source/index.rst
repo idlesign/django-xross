@@ -18,7 +18,7 @@ Requirements
 ------------
 
 1. Python 3.5+
-2. Django 1.4+
+2. Django 1.8+
 3. jQuery (make it available in templates)
 
 
