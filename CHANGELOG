@@ -6,6 +6,8 @@ Unreleased
 ----------
 ! Dropped QA for Django <1.8.
 ! Dropped QA for Python 3.3 and 3.4.
+* Added QA for Django 2.2.
+* Added QA for py3.7.
 
 
 v0.6.0
