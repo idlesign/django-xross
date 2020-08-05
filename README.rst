@@ -5,9 +5,6 @@ https://github.com/idlesign/django-xross
 .. image:: https://img.shields.io/pypi/v/django-xross.svg
     :target: https://pypi.python.org/pypi/django-xross
 
-.. image:: https://img.shields.io/pypi/dm/django-xross.svg
-    :target: https://pypi.python.org/pypi/django-xross
-
 .. image:: https://img.shields.io/pypi/l/django-xross.svg
     :target: https://pypi.python.org/pypi/django-xross
 
@@ -16,9 +13,6 @@ https://github.com/idlesign/django-xross
 
 .. image:: https://img.shields.io/travis/idlesign/django-xross/master.svg
     :target: https://travis-ci.org/idlesign/django-xross
-
-.. image:: https://landscape.io/github/idlesign/django-xross/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/idlesign/django-xross/master
 
 
 Description
@@ -104,4 +98,3 @@ Documentation
 -------------
 
 http://django-xross.readthedocs.org/
-
