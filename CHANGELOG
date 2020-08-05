@@ -5,9 +5,9 @@ django-xross changelog
 Unreleased
 ----------
 ! Dropped QA for Django <1.8.
-! Dropped QA for Python 3.3 and 3.4.
-* Added QA for Django 2.2.
-* Added QA for py3.7.
+! Dropped QA for Python 3.3, 3.4, 3.5.
+* Added QA for Django 2.2, 3.0, 3.1.
+* Added QA for Python 3.7 and 3.8.
 
 
 v0.6.0

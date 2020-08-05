@@ -1,19 +1,19 @@
 import json
-
-from collections import OrderedDict
 from inspect import signature, currentframe
+from typing import Callable, Type, Tuple, List
 
-from django.http.response import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound
-from django.http.request import HttpRequest
 from django.conf import settings
+from django.http.request import HttpRequest
+from django.http.response import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound
 
 from .exceptions import (
     MissingOperationArgument, OperationUnimplemented, ResponseEmpty, HandlerException, ResponseReady)
 
 
-def construct_operations_dict(*op_functions):
+def construct_operations_dict(*op_functions: Callable) -> dict:
+
     operations_dict = {
-        '_op_bindings': OrderedDict()
+        '_op_bindings': {}
     }
 
     for op_function in op_functions:
@@ -23,29 +23,31 @@ def construct_operations_dict(*op_functions):
     return operations_dict
 
 
-def build_handler_class(operations_dict):
-    return type('XrossDynamicHandler', (XrossHandlerBase,), operations_dict)
+def build_handler_class(operations_dict: dict) -> Type['XrossHandlerBase']:
+    return type('XrossDynamicHandler', (XrossHandlerBase,), operations_dict)  # noqa
 
 
-def xross_listener(http_method=None, **xross_attrs):
+def xross_listener(http_method: str = None, **xross_attrs):
     """Instructs xross to handle AJAX calls right from the moment it is called.
 
     This should be placed in a view decorated with `@xross_view()`.
 
-    :param str http_method: GET or POST. To be used as a source of data for xross.
+    :param http_method: GET or POST. To be used as a source of data for xross.
 
-    :param dict xross_attrs: xross handler attributes.
+    :param xross_attrs: xross handler attributes.
         Those attributes will be available in operation functions in `xross` keyword argument.
 
     """
     handler = currentframe().f_back.f_locals['request']._xross_handler
     handler.set_attrs(**xross_attrs)
+
     if http_method is not None:
         handler.http_method = http_method
+
     handler.dispatch()
 
 
-def xross_view(*op_functions):
+def xross_view(*op_functions: Callable) -> Callable:
     """This decorator should be used to decorate application views that require xross functionality.
 
     :param list op_functions: operations (functions, methods) responsible for handling xross requests.
@@ -66,26 +68,29 @@ def xross_view(*op_functions):
         Examples:
 
             def do_something(request, param1_from_html_el, param2_from_html_el, xross=None):
-                return '%s - %s' % (param1_from_html_el, param2_from_html_el)
+                return f'{param1_from_html_el} - {param2_from_html_el}'
 
     """
-
     operations_dict = construct_operations_dict(*op_functions)
 
     def get_request(src):
         return src if isinstance(src, HttpRequest) else None
 
-    def dec_wrapper(func):
-        def func_wrapper(*fargs, **fkwargs):
+    def dec_wrapper(func: Callable):
+
+        def func_wrapper(*fargs, **fkwargs) -> HttpResponse:
 
             request_idx = getattr(func, '_req_idx', None)
+
             if request_idx is None:
                 request = get_request(fargs[0])
                 request_idx = 0
+
                 if not request:
                     # Possibly a class-based view where 0-attr is `self`.
                     request = get_request(fargs[1])
                     request_idx = 1
+
                 func._req_idx = request_idx
 
             else:
@@ -93,6 +98,7 @@ def xross_view(*op_functions):
 
             if hasattr(request, '_xross_handler'):
                 request._xross_handler._op_bindings.update(operations_dict['_op_bindings'])
+
             else:
                 request._xross_handler = build_handler_class(operations_dict)(request, func)
 
@@ -105,8 +111,8 @@ def xross_view(*op_functions):
             except ResponseEmpty as e:
                 return HttpResponseNotFound(e if settings.DEBUG else b'')
 
-            except ResponseReady as r:
-                response = r.response
+            except ResponseReady as ready:
+                response = ready.response
 
                 if response is None:
                     response = ''
@@ -123,11 +129,11 @@ def xross_view(*op_functions):
     return dec_wrapper
 
 
-class XrossHandlerBase(object):
+class XrossHandlerBase:
 
     _op_bindings = {}
 
-    def __init__(self, request, view_func):
+    def __init__(self, request: HttpRequest, view_func: Callable):
         self.attrs = {}
         self.http_method = 'GET'
         self.request = request
@@ -138,9 +144,9 @@ class XrossHandlerBase(object):
 
     @classmethod
     def get_op_method_name(cls, name):
-        return 'op_%s' % name
+        return f'op_{name}'
 
-    def get_op_callable(self, name):
+    def get_op_callable(self, name: str) -> Callable:
         handler = getattr(self, name, None)
 
         if handler is None:
@@ -148,13 +154,13 @@ class XrossHandlerBase(object):
 
         if handler is None:
             raise OperationUnimplemented(
-                'Requested `%s` operation is not implemented. Missing xross handler for `%s`.' % (name, self.view_func)
-            )
+                f'Requested `{name}` operation is not implemented. '
+                f'Missing xross handler for `{self.view_func}`.')
 
         return handler
 
     @classmethod
-    def _get_handler_args(cls, handler):
+    def _get_handler_args(cls, handler: Callable) -> Tuple[List[str], List[str]]:
         signature_params = signature(handler).parameters
 
         args = []
@@ -175,67 +181,82 @@ class XrossHandlerBase(object):
 
     @classmethod
     def _cast_val(cls, val):
-        if val.lower() == 'null':
+        lower = val.lower()
+
+        if lower == 'null':
             val = None
-        if val.lower() == 'true':
+
+        if lower == 'true':
             val = True
-        elif val.lower() == 'false':
+
+        elif lower == 'false':
             val = False
+
         elif val.isdigit():  # NB: this won't handle floats.
             val = int(val)
+
         return val
 
     def dispatch(self):
-        if self.request.is_ajax():
-            request_data = getattr(self.request, self.http_method)
-            operation_id = request_data.get('op', None)
 
-            if operation_id is not None:
-                op_name = self.get_op_method_name(operation_id)
-                handler = self.get_op_callable(op_name)
+        if not self.request.is_ajax():
+            return
 
-                args_handler, kwargs_handler = self._get_handler_args(handler)
+        request_data = getattr(self.request, self.http_method)
+        operation_id = request_data.get('op', None)
 
-                # Binding args.
-                args_bound = []
-                for idx, arg in enumerate(args_handler):
+        if operation_id is None:
+            return
 
-                    if idx == 0 and arg == 'self':
-                        view_obj = self
-                        try:
-                            # Trying to set handler's `self` to an appropriate obj.
-                            view_obj = currentframe().f_back.f_back.f_locals['self']
-                        except AttributeError:
-                            pass
-                        val = view_obj
-                    elif idx in (0, 1) and arg == 'request':
-                        val = self.request
-                    else:
-                        val = self._cast_val(request_data.get(arg))
+        op_name = self.get_op_method_name(operation_id)
+        handler = self.get_op_callable(op_name)
 
-                    if val is not None:
-                        args_bound.append(val)
+        args_handler, kwargs_handler = self._get_handler_args(handler)
 
-                if len(args_bound) != len(args_handler):
-                    raise MissingOperationArgument(
-                        'Missing `%s` argument(s) for `%s` operation.' % (
-                            ', '.join(set(args_handler).difference(args_bound)), op_name
-                        )
-                    )
+        cast = self._cast_val
 
-                # Binding kwargs.
-                kwargs_bound = {}
-                if kwargs_handler:
+        # Binding args.
+        args_bound = []
+        for idx, arg in enumerate(args_handler):
 
-                    # xross kwarg
-                    if 'xross' in kwargs_handler:
-                        kwargs_bound['xross'] = self
+            if idx == 0 and arg == 'self':
+                view_obj = self
+                try:
+                    # Trying to set handler's `self` to an appropriate obj.
+                    view_obj = currentframe().f_back.f_back.f_locals['self']
 
-                    for kwarg in kwargs_handler:
-                        val = request_data.get(kwarg)
-                        if val is not None:
-                            kwargs_bound[kwarg] = self._cast_val(val)
+                except AttributeError:
+                    pass
 
-                response = handler(*args_bound, **kwargs_bound)
+                val = view_obj
 
-                raise ResponseReady(response)
+            elif idx in (0, 1) and arg == 'request':
+                val = self.request
+
+            else:
+                val = cast(request_data.get(arg))
+
+            if val is not None:
+                args_bound.append(val)
+
+        if len(args_bound) != len(args_handler):
+            raise MissingOperationArgument(
+                f"Missing `{', '.join(set(args_handler).difference(args_bound))}` "
+                f"argument(s) for `{op_name}` operation.")
+
+        # Binding kwargs.
+        kwargs_bound = {}
+        if kwargs_handler:
+
+            # xross kwarg
+            if 'xross' in kwargs_handler:
+                kwargs_bound['xross'] = self
+
+            for kwarg in kwargs_handler:
+                val = request_data.get(kwarg)
+                if val is not None:
+                    kwargs_bound[kwarg] = cast(val)
+
+        response = handler(*args_bound, **kwargs_bound)
+
+        raise ResponseReady(response)
