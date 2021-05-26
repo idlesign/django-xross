@@ -15,6 +15,15 @@ https://github.com/idlesign/django-xross
     :target: https://travis-ci.org/idlesign/django-xross
 
 
+Deprecated
+----------
+
+This application is deprecated in favor of `django-siteajax <https://github.com/idlesign/django-siteajax>`_.
+Consider switching.
+
+*Thank you for watching us.*
+
+
 Description
 -----------
 
